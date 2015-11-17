@@ -7,7 +7,22 @@ Computer Science 320, Fall 2015
 
 import os
 from sys import exit, argv
-
+#####
+# (1) Sudoku Puzzle -> CNF Formula
+#####
+def translate_puzzle():
+	pass
+#####
+# (2) CNF Formula -> Solver
+#  Return: solution string representing puzzle
+#####
+def solve_cnf_puzzle():
+	pass
+#####
+# (3) Solved Puzzle -> Readable Format
+#####
+def output_solved_puzzle():
+	pass
 def main():
 	# Verify we have a puzzle (or set of puzzles) to solve
 	if len(argv) < 2:
