@@ -11,7 +11,45 @@ from sys import exit, argv
 # (1) Sudoku Puzzle -> CNF Formula
 #####
 def translate_puzzle():
-	pass
+	cnf_puzzle = {}
+	# use i, j, k starting at 1
+	i = 1
+	j = 1
+	k = 1
+	str_pos = 0
+	possible_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+	# Go through every position in the input string
+	# For each character, identify:
+	#	- if it is a placeholder
+	#	- if it is a given value
+	# If it's a placeholder value (represented as 0), then at position (i, j) we store the list [1:9].
+	# If it's a given value, then at position (i, j) we store this given value. 
+	while str_pos < 81:
+		if int(puzzle[str_pos]) > 0:
+			cnf_puzzle[(i, j)] = int(puzzle[str_pos])
+		else:
+			cnf_puzzle[(i, j)] = possible_values
+		
+		j += 1
+		if j > 9:
+			j = 1
+			i += 1
+		str_pos += 1
+	
+	pos = 0
+	i = 1
+	j = 1
+	while pos < 81:
+		print(str(cnf_puzzle[(i, j)]) + " at cell " + "(" + str(i) + "," + str(j) + ")")
+		j += 1
+		if j > 9:
+			j = 1
+			i += 1
+		pos += 1
+	# every cell contains at least one number
+	# every number appears at most once in every row
+	# every number appears at most once in every column
+	# every number appears at most once in every 3x3 sub-grid
 #####
 # (2) CNF Formula -> Solver
 #  Return: solution string representing puzzle
