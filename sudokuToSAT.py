@@ -2,8 +2,6 @@
 sudokuToSAT
 University of Victoria
 Computer Science 320, Fall 2015
-Kyle Hoffmann - V00812422
-// Note to group: Add your names here!
 """
 
 import os
@@ -122,10 +120,53 @@ def print_node(head):
 #	See assigment document for details. (Note: instead of converting from base 9, it was just indexed at 0).
 #	Works for the NxN case. 
 #####
-def write_mimimal_miniSat_encoding( puzzle_head, size ):
+def write_mimimal_miniSat_encoding( puzzle_head, n_value ):
 	# Attempts to write the encoding to a reserved file. 
 	try:
-		meta_file = open('miniSat_readypuzzle', 'w')
+		sat_file = open('miniSat_readypuzzle', 'w')
+		grid_size = int(math.pow( (n_value), 1.0/2))
+
+		# Writes the cell constraint
+		for x in range(0, n_value ):
+			for y in range(0, n_value ):
+				for z in range(0, n_value ):
+					sat_file.write( str(x* n_value* n_value + y *  n_value + z) )
+					if (z != n_value):
+						sat_file.write( ' ' )
+				sat_file.write('\n')
+
+		# Writes the row constraint
+		for y in range(0, n_value ):
+			for z in range(0, n_value ):
+				for x in range(0, n_value-1 ):
+					for i in range(x+1, n_value ):
+						sat_file.write(  '-' + str(x* n_value* n_value + y *  n_value + z) + ' -' + str(i* n_value* n_value + y *  n_value + z) + '\n')
+
+		# Writes the column constraint
+		for x in range(0, n_value ):
+			for z in range(0, n_value ):
+				for y in range(0, n_value-1 ):
+					for i in range(y+1, n_value ):
+						sat_file.write(  '-' + str(x* n_value* n_value + y *  n_value + z) + ' -' + str(x* n_value* n_value + i *  n_value + z) + '\n')
+
+		# Write grid constriants
+		for z in range(0, n_value ):
+			for i in range(0, grid_size ):
+				for j in range(0, grid_size ):
+					for x in range(0, grid_size ):
+						for y in range(0, grid_size ):
+							for k in range(x+1, grid_size ):
+								sat_file.write(  '-' + str((3*i+x)* n_value* n_value + (3*j + y) *  n_value + z) + ' -' + str((3*i+k)* n_value* n_value + (3*j + y) *  n_value + z) + '\n')
+
+		for z in range(0, n_value ):
+			for i in range(0, grid_size ):
+				for j in range(0, grid_size ):
+					for x in range(0, grid_size ):
+						for y in range(0, grid_size ):
+							for k in range(y+1, grid_size ):
+								for l in range(0, grid_size ):
+									sat_file.write(  '-' + str((3*i+x)* n_value* n_value + (3*j + y) *  n_value + z) + ' -' + str((3*i+x)* n_value* n_value + (3*j + l) *  n_value + z) + '\n')
+
 	except IOError:
 		print("Error in opening " + 'miniSat_readypuzzle')
 		print("Verify the file exists and/or the correct permissions are set for this file.")
@@ -329,7 +370,7 @@ def main():
 					# Moves to the next node for saving
 					node = node.next
 			# calls correct encoding fucntion.
-			# write_mimimal_encoding(  )
+			write_mimimal_miniSat_encoding( known_values_head, int(nCheck*nCheck) )
 		except IOError:
 			print("Error in opening " + 'sudoku.meta')
 			print("Verify the file exists and/or the correct permissions are set for this file.")
@@ -341,3 +382,4 @@ def main():
 	
 if __name__ == "__main__":
 	main()
+	
