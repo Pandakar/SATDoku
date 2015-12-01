@@ -156,7 +156,7 @@ def write_mimimal_miniSat_encoding( puzzle_head, n_value ):
 					for x in range(0, grid_size ):
 						for y in range(0, grid_size ):
 							for k in range(x+1, grid_size ):
-								sat_file.write(  '-' + str((3*i+x)* n_value* n_value + (3*j + y) *  n_value + z) + ' -' + str((3*i+k)* n_value* n_value + (3*j + y) *  n_value + z) + '\n')
+								sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z) + ' -' + str((grid_size*i+k)* n_value* n_value + (grid_size*j + y) *  n_value + z) + '\n')
 
 		for z in range(0, n_value ):
 			for i in range(0, grid_size ):
@@ -165,7 +165,7 @@ def write_mimimal_miniSat_encoding( puzzle_head, n_value ):
 						for y in range(0, grid_size ):
 							for k in range(y+1, grid_size ):
 								for l in range(0, grid_size ):
-									sat_file.write(  '-' + str((3*i+x)* n_value* n_value + (3*j + y) *  n_value + z) + ' -' + str((3*i+x)* n_value* n_value + (3*j + l) *  n_value + z) + '\n')
+									sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z) + ' -' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + l) *  n_value + z) + '\n')
 
 	except IOError:
 		print("Error in opening " + 'miniSat_readypuzzle')
