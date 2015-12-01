@@ -110,7 +110,7 @@ def fix_character_ID( puzzle_head, id_head ):
 def print_node(head):
 	node = head
 	while node:
-		# print node.location
+		print node.location
 		print node.id
 		# print node.character
 		node = node.next
@@ -120,11 +120,25 @@ def print_node(head):
 #	See assigment document for details. (Note: instead of converting from base 9, it was just indexed at 0).
 #	Works for the NxN case. 
 #####
-def write_mimimal_miniSat_encoding( puzzle_head, n_value ):
+def write_mimimal_miniSat_encoding( puzzle_head, n_value, number_of_known_values, special_case):
 	# Attempts to write the encoding to a reserved file. 
 	try:
 		sat_file = open('miniSat_readypuzzle', 'w')
 		grid_size = int(math.pow( (n_value), 1.0/2))
+		offset = 0
+		if (special_case):
+			offset = 1
+
+		# print to file header
+		sat_file.write( 'p cnf ' + str(int(math.pow( (n_value), 3))) + ' ' + str(number_of_known_values + int(math.pow( (n_value), 2)) + (3 * int(math.pow( (n_value), 3)) * (n_value - 1 ) / 2 ) ) + '\n' )
+		# number of entries = 3* n_value^3 * (n_value-1) /2 + # of known values.
+
+		# print known values
+		node = puzzle_head
+		while node:
+			sat_file.write(str(node.location*9 + node.id-offset) + '\n')
+			node = node.next
+
 
 		# Writes the cell constraint
 		for x in range(0, n_value ):
@@ -184,7 +198,7 @@ def main():
 	curr = ""
 	head = -1
 	tail = -1
-	new_ID = 1
+	new_ID = 0
 	known_values_head = -1
 	known_values_tail = -1
 	ints_found = 0
@@ -220,8 +234,6 @@ def main():
 					# Catch integer entries. (needed for the 9x9 1-9 character case.)
 					try:
 						if 1 <= int(cInt) <= 9:
-							# A character in the puzzle was found, thus the total number of characters found has increased
-							charactersScanned += 1
 							# Get id
 							current_ID = get_character_ID( head, c )
 							# Catches the case that the current character is a new
@@ -260,6 +272,8 @@ def main():
 							# The number of unique characters in the sudoku is tracked. If it exceeds the n 
 							# (from nxn) the puzzle is invalid.
 							number_of_known_values += 1
+							# A character in the puzzle was found, thus the total number of characters found has increased
+							charactersScanned += 1
 
 
 						else:
@@ -278,8 +292,6 @@ def main():
 						elif ( c =="\n" or c =="\s" or c =="\r" or c == "\t" ):
 							pass
 						else:
-							# A character in the puzzle was found, thus the total number of characters found has increased
-							charactersScanned += 1
 							# Get id
 							current_ID = get_character_ID( head, c )
 							# Catches the case that the current character is a new
@@ -315,6 +327,8 @@ def main():
 							# The number of unique characters in the sudoku is tracked. If it exceeds the n 
 							# (from nxn) the puzzle is invalid.
 							number_of_known_values += 1
+							# A character in the puzzle was found, thus the total number of characters found has increased
+							charactersScanned += 1
 
 		except IOError:
 			# Puzzle could not be opened, inform the user and end the program.
@@ -370,7 +384,7 @@ def main():
 					# Moves to the next node for saving
 					node = node.next
 			# calls correct encoding fucntion.
-			write_mimimal_miniSat_encoding( known_values_head, int(nCheck*nCheck) )
+			write_mimimal_miniSat_encoding( known_values_head, int(nCheck*nCheck), number_of_known_values, skip_meta )
 		except IOError:
 			print("Error in opening " + 'sudoku.meta')
 			print("Verify the file exists and/or the correct permissions are set for this file.")
