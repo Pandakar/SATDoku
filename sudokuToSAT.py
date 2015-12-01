@@ -116,11 +116,11 @@ def print_node(head):
 		node = node.next
 
 #####
-# Writes the minimal Encoding. 
+# Writes the Encoding. 
 #	See assigment document for details. (Note: instead of converting from base 9, it was just indexed at 0).
 #	Works for the NxN case. 
 #####
-def write_mimimal_miniSat_encoding( puzzle_head, n_value, number_of_known_values, special_case):
+def write_encoding( puzzle_head, n_value, number_of_known_values, special_case, gsat, extended):
 	# Attempts to write the encoding to a reserved file. 
 	try:
 		sat_file = open('miniSat_readypuzzle', 'w')
@@ -130,23 +130,40 @@ def write_mimimal_miniSat_encoding( puzzle_head, n_value, number_of_known_values
 			offset = 1
 
 		# print to file header
-		sat_file.write( 'p cnf ' + str(int(math.pow( (n_value), 3))) + ' ' + str(number_of_known_values + int(math.pow( (n_value), 2)) + (3 * int(math.pow( (n_value), 3)) * (n_value - 1 ) / 2 ) ) + '\n' )
+		sat_file.write( 'p cnf ' + str(int(math.pow( (n_value), 3))) + ' ' )
+		if extended:
+			sat_file.write( str(number_of_known_values + (4 * int(math.pow( (n_value), 2)) ) + (4 * int(math.pow( (n_value), 3)) * (n_value - 1 ) / 2 ) ) + '\n' )
+		else:
+			sat_file.write( str(number_of_known_values + int(math.pow( (n_value), 2)) + (3 * int(math.pow( (n_value), 3)) * (n_value - 1 ) / 2 ) ) + '\n' )
 		# number of entries = 3* n_value^3 * (n_value-1) /2 + # of known values.
 
 		# print known values
 		node = puzzle_head
 		while node:
-			sat_file.write(str(node.location*9 + node.id-offset) + '\n')
+			if (gsat== True):
+				sat_file.write('( ')
+			sat_file.write(str(node.location*9 + node.id-offset) )
+			if (gsat== True):
+				sat_file.write(' )')
+			else:
+				sat_file.write(' 0')
+			sat_file.write('\n')
 			node = node.next
 
 
 		# Writes the cell constraint
 		for x in range(0, n_value ):
 			for y in range(0, n_value ):
+				if (gsat== True):
+					sat_file.write('( ')
 				for z in range(0, n_value ):
-					sat_file.write( str(x* n_value* n_value + y *  n_value + z) )
+					sat_file.write( str(x* n_value* n_value + y *  n_value + z + 1) )
 					if (z != n_value):
 						sat_file.write( ' ' )
+				if (gsat== True):
+					sat_file.write(' )')
+				else:
+					sat_file.write(' 0')
 				sat_file.write('\n')
 
 		# Writes the row constraint
@@ -154,14 +171,28 @@ def write_mimimal_miniSat_encoding( puzzle_head, n_value, number_of_known_values
 			for z in range(0, n_value ):
 				for x in range(0, n_value-1 ):
 					for i in range(x+1, n_value ):
-						sat_file.write(  '-' + str(x* n_value* n_value + y *  n_value + z) + ' -' + str(i* n_value* n_value + y *  n_value + z) + '\n')
+						if (gsat== True):
+							sat_file.write('( ')
+						sat_file.write(  '-' + str(x* n_value* n_value + y *  n_value + z + 1) + ' -' + str(i* n_value* n_value + y *  n_value + z + 1))
+						if (gsat== True):
+							sat_file.write(' )')
+						else:
+							sat_file.write(' 0')
+						sat_file.write('\n')
 
 		# Writes the column constraint
 		for x in range(0, n_value ):
 			for z in range(0, n_value ):
 				for y in range(0, n_value-1 ):
 					for i in range(y+1, n_value ):
-						sat_file.write(  '-' + str(x* n_value* n_value + y *  n_value + z) + ' -' + str(x* n_value* n_value + i *  n_value + z) + '\n')
+						if (gsat== True):
+							sat_file.write('( ')
+						sat_file.write(  '-' + str(x* n_value* n_value + y *  n_value + z + 1) + ' -' + str(x* n_value* n_value + i *  n_value + z + 1))
+						if (gsat== True):
+							sat_file.write(' )')
+						else:
+							sat_file.write(' 0')
+						sat_file.write('\n')
 
 		# Write grid constriants
 		for z in range(0, n_value ):
@@ -170,7 +201,14 @@ def write_mimimal_miniSat_encoding( puzzle_head, n_value, number_of_known_values
 					for x in range(0, grid_size ):
 						for y in range(0, grid_size ):
 							for k in range(x+1, grid_size ):
-								sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z) + ' -' + str((grid_size*i+k)* n_value* n_value + (grid_size*j + y) *  n_value + z) + '\n')
+								if (gsat== True):
+									sat_file.write('( ')
+								sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z + 1) + ' -' + str((grid_size*i+k)* n_value* n_value + (grid_size*j + y) *  n_value + z + 1))
+								if (gsat== True):
+									sat_file.write(' )')
+								else:
+									sat_file.write(' 0')
+								sat_file.write('\n')
 
 		for z in range(0, n_value ):
 			for i in range(0, grid_size ):
@@ -179,7 +217,73 @@ def write_mimimal_miniSat_encoding( puzzle_head, n_value, number_of_known_values
 						for y in range(0, grid_size ):
 							for k in range(y+1, grid_size ):
 								for l in range(0, grid_size ):
-									sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z) + ' -' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + l) *  n_value + z) + '\n')
+									if (gsat== True):
+										sat_file.write('( ')
+									sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z + 1) + ' -' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + l) *  n_value + z + 1))
+									if (gsat== True):
+										sat_file.write(' )')
+									else:
+										sat_file.write(' 0')
+									sat_file.write('\n')
+
+		if extended:
+			# Writes the cell constraint
+			for y in range(0, n_value ):
+				for z in range(0, n_value ):
+					for x in range(0, n_value-1 ):
+						for i in range(z+1, n_value ):
+							if (gsat== True):
+								sat_file.write('( ')
+							sat_file.write(  '-' + str(x* n_value* n_value + y *  n_value + z + 1) + ' -' + str(x* n_value* n_value + y *  n_value + i + 1))
+							if (gsat== True):
+								sat_file.write(' )')
+							else:
+								sat_file.write(' 0')
+							sat_file.write('\n')
+			# Requires each number appear at least once per row
+			for y in range(0, n_value ):
+				for z in range(0, n_value ):
+					if (gsat== True):
+						sat_file.write('( ')
+					for x in range(0, n_value ):
+						sat_file.write( str(x* n_value* n_value + y *  n_value + z + 1) )
+						if (x != n_value):
+							sat_file.write( ' ' )
+					if (gsat== True):
+						sat_file.write(' )')
+					else:
+						sat_file.write(' 0')
+					sat_file.write('\n')
+			# Requires each number appear at least once per column 
+			for x in range(0, n_value ):
+				for z in range(0, n_value ):
+					if (gsat== True):
+						sat_file.write('( ')
+					for y in range(0, n_value ):
+						sat_file.write( str(x* n_value* n_value + y *  n_value + z + 1) )
+						if (y != n_value):
+							sat_file.write( ' ' )
+					if (gsat== True):
+						sat_file.write(' )')
+					else:
+						sat_file.write(' 0')
+					sat_file.write('\n')
+			# Requires every number appears atleast once in a cell		
+			for i in range(0, grid_size ):
+				for j in range(0, grid_size ):
+					for x in range(0, grid_size ):
+						for y in range(0, grid_size ):
+							if (gsat== True):
+								sat_file.write('( ')
+							for z in range(0, n_value ):
+								sat_file.write( str((3*i+x)* n_value* n_value + (3*j+y) *  n_value + z + 1) )
+								if (y != n_value):
+									sat_file.write( ' ' )
+							if (gsat== True):
+								sat_file.write(' )')
+							else:
+								sat_file.write(' 0')
+							sat_file.write('\n')
 
 	except IOError:
 		print("Error in opening " + 'miniSat_readypuzzle')
@@ -204,12 +308,23 @@ def main():
 	ints_found = 0
 	number_of_known_values = 0
 	skip_meta = False
+	gsat = False
+	extended = False
 
 	# Verify we have a puzzle to solve
 	if len(argv) < 2:
 		print("Usage of program: 'py miniSAT.py <puzzle>'")
 		print("<puzzle> can be an in-line puzzle from the command line, or the name of a file containing a puzzle.")
 		exit()
+	if len(argv) > 2 and argv[2] == '-g':
+		gsat = True
+		if len(argv) > 3 and argv[3] == '-e':
+			extended = True
+	elif len(argv) > 2 and argv[2] == '-e':
+		extended = True
+		if len(argv) > 3 and argv[3] == '-g':
+			gsat = True
+
 
 	if os.path.exists(argv[1]):
 		try:
@@ -384,7 +499,7 @@ def main():
 					# Moves to the next node for saving
 					node = node.next
 			# calls correct encoding fucntion.
-			write_mimimal_miniSat_encoding( known_values_head, int(nCheck*nCheck), number_of_known_values, skip_meta )
+			write_encoding( known_values_head, int(nCheck*nCheck), number_of_known_values, skip_meta, gsat, extended)
 		except IOError:
 			print("Error in opening " + 'sudoku.meta')
 			print("Verify the file exists and/or the correct permissions are set for this file.")
@@ -396,4 +511,3 @@ def main():
 	
 if __name__ == "__main__":
 	main()
-	
