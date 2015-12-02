@@ -120,21 +120,19 @@ def print_node(head):
 #	See assigment document for details. (Note: instead of converting from base 9, it was just indexed at 0).
 #	Works for the NxN case. 
 #####
-def write_encoding( puzzle_head, n_value, number_of_known_values, special_case, gsat, extended):
+def write_encoding( puzzle_head, n_value, number_of_known_values,  gsat, extended):
 	# Attempts to write the encoding to a reserved file. 
 	try:
 		sat_file = open('miniSat_readypuzzle', 'w')
 		grid_size = int(math.pow( (n_value), 1.0/2))
-		offset = 0
-		if (special_case):
-			offset = 1
 
 		# print to file header
-		sat_file.write( 'p cnf ' + str(int(math.pow( (n_value), 3))) + ' ' )
-		if extended:
-			sat_file.write( str(number_of_known_values + (4 * int(math.pow( (n_value), 2)) ) + (4 * int(math.pow( (n_value), 3)) * (n_value - 1 ) / 2 ) ) + '\n' )
-		else:
-			sat_file.write( str(number_of_known_values + int(math.pow( (n_value), 2)) + (3 * int(math.pow( (n_value), 3)) * (n_value - 1 ) / 2 ) ) + '\n' )
+		if (gsat != True):
+			sat_file.write( 'p cnf ' + str(int(math.pow( (n_value), 3))) + ' ' )
+			if extended:
+				sat_file.write( str(number_of_known_values + (4 * int(math.pow( (n_value), 2)) ) + (4 * int(math.pow( (n_value), 3)) * (n_value - 1 ) / 2 ) ) + '\n' )
+			else:
+				sat_file.write( str(number_of_known_values + int(math.pow( (n_value), 2)) + (3 * int(math.pow( (n_value), 3)) * (n_value - 1 ) / 2 ) ) + '\n' )
 		# number of entries = 3* n_value^3 * (n_value-1) /2 + # of known values.
 
 		# print known values
@@ -142,7 +140,7 @@ def write_encoding( puzzle_head, n_value, number_of_known_values, special_case, 
 		while node:
 			if (gsat== True):
 				sat_file.write('( ')
-			sat_file.write(str(node.location*9 + node.id-offset) )
+			sat_file.write(str(node.location*9 + node.id) )
 			if (gsat== True):
 				sat_file.write(' )')
 			else:
@@ -173,7 +171,7 @@ def write_encoding( puzzle_head, n_value, number_of_known_values, special_case, 
 					for i in range(x+1, n_value ):
 						if (gsat== True):
 							sat_file.write('( ')
-						sat_file.write(  '-' + str(x* n_value* n_value + y *  n_value + z + 1) + ' -' + str(i* n_value* n_value + y *  n_value + z + 1))
+						sat_file.write(  ' -' + str(x* n_value* n_value + y *  n_value + z + 1) + ' -' + str(i* n_value* n_value + y *  n_value + z + 1))
 						if (gsat== True):
 							sat_file.write(' )')
 						else:
@@ -200,10 +198,10 @@ def write_encoding( puzzle_head, n_value, number_of_known_values, special_case, 
 				for j in range(0, grid_size ):
 					for x in range(0, grid_size ):
 						for y in range(0, grid_size ):
-							for k in range(x+1, grid_size ):
+							for k in range(y+1, grid_size ):
 								if (gsat== True):
 									sat_file.write('( ')
-								sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z + 1) + ' -' + str((grid_size*i+k)* n_value* n_value + (grid_size*j + y) *  n_value + z + 1))
+								sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z + 1) + ' -' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + k) *  n_value + z + 1))
 								if (gsat== True):
 									sat_file.write(' )')
 								else:
@@ -215,11 +213,11 @@ def write_encoding( puzzle_head, n_value, number_of_known_values, special_case, 
 				for j in range(0, grid_size ):
 					for x in range(0, grid_size ):
 						for y in range(0, grid_size ):
-							for k in range(y+1, grid_size ):
+							for k in range(x+1, grid_size ):
 								for l in range(0, grid_size ):
 									if (gsat== True):
 										sat_file.write('( ')
-									sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z + 1) + ' -' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + l) *  n_value + z + 1))
+									sat_file.write(  '-' + str((grid_size*i+x)* n_value* n_value + (grid_size*j + y) *  n_value + z + 1) + ' -' + str((grid_size*i+k)* n_value* n_value + (grid_size*j + l) *  n_value + z + 1))
 									if (gsat== True):
 										sat_file.write(' )')
 									else:
@@ -228,9 +226,9 @@ def write_encoding( puzzle_head, n_value, number_of_known_values, special_case, 
 
 		if extended:
 			# Writes the cell constraint
-			for y in range(0, n_value ):
-				for z in range(0, n_value ):
-					for x in range(0, n_value-1 ):
+			for x in range(0, n_value ):
+				for y in range(0, n_value ):
+					for z in range(0, n_value-1 ):
 						for i in range(z+1, n_value ):
 							if (gsat== True):
 								sat_file.write('( ')
@@ -269,21 +267,21 @@ def write_encoding( puzzle_head, n_value, number_of_known_values, special_case, 
 						sat_file.write(' 0')
 					sat_file.write('\n')
 			# Requires every number appears atleast once in a cell		
-			for i in range(0, grid_size ):
-				for j in range(0, grid_size ):
-					for x in range(0, grid_size ):
-						for y in range(0, grid_size ):
-							if (gsat== True):
-								sat_file.write('( ')
-							for z in range(0, n_value ):
+			for z in range(0, n_value ):
+				for i in range(0, grid_size ):
+					for j in range(0, grid_size ):
+						if (gsat== True):
+							sat_file.write('( ')
+						for x in range(0, grid_size ):
+							for y in range(0, grid_size ):
 								sat_file.write( str((3*i+x)* n_value* n_value + (3*j+y) *  n_value + z + 1) )
 								if (y != n_value):
 									sat_file.write( ' ' )
-							if (gsat== True):
-								sat_file.write(' )')
-							else:
-								sat_file.write(' 0')
-							sat_file.write('\n')
+						if (gsat== True):
+							sat_file.write(' )')
+						else:
+							sat_file.write(' 0')
+						sat_file.write('\n')
 
 	except IOError:
 		print("Error in opening " + 'miniSat_readypuzzle')
@@ -302,7 +300,7 @@ def main():
 	curr = ""
 	head = -1
 	tail = -1
-	new_ID = 0
+	new_ID = 1
 	known_values_head = -1
 	known_values_tail = -1
 	ints_found = 0
@@ -499,7 +497,7 @@ def main():
 					# Moves to the next node for saving
 					node = node.next
 			# calls correct encoding fucntion.
-			write_encoding( known_values_head, int(nCheck*nCheck), number_of_known_values, skip_meta, gsat, extended)
+			write_encoding( known_values_head, int(nCheck*nCheck), number_of_known_values, gsat, extended)
 		except IOError:
 			print("Error in opening " + 'sudoku.meta')
 			print("Verify the file exists and/or the correct permissions are set for this file.")
