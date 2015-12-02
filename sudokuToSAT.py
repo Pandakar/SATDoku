@@ -461,7 +461,7 @@ def main():
 	# Sudoku logic dosen't apply to the problem.
 
 	# Gets the fourth root of the entries of th sudoku puzzle.
-	nCheck = math.pow( (charactersScanned), 1.0/4)
+	nCheck = round(math.pow( (charactersScanned), 1.0/4))
 
 	# Checks for the special case of a 9x9 puzzle with 1-9 being the characters used in the puzzle.
 	# This allows simple testing for the second half of the program for any solved puzzles of this style
@@ -477,8 +477,7 @@ def main():
 	# Checks if the number of characters has a fourth root that is a natural number (excluding 0).
 	# If so the puzzle is valid, proceed with encoding.
 	# If not print error message.
-	if (nCheck).is_integer() and math.pow( (nCheck), 4 ) == charactersScanned and (nCheck*nCheck + 1) >= new_ID:
-		print 'Valid Puzzle'
+	if math.pow( (nCheck), 4 ) == charactersScanned and (nCheck*nCheck + 1) >= new_ID:
 		# Try to make meta file. If not possible program breaks.
 		try:
 			meta_file = open('sudoku.meta', 'w')
