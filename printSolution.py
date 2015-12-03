@@ -37,7 +37,7 @@ def print_puzzle( split_puzzle, file_name ):
 def output_solved_puzzle(solved_puzzle, n_root, n):
 	# Split input string of a single line into 9 lines for easier printing
 	puzzle = [solved_puzzle[i:i+n] for i in range(0, len(solved_puzzle), n)]
-	print("|" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "|")
+	print("+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+")
 	counter = n_root
 	# Loop over all lines in puzzle and print in a nice ASCII format
 	for line in puzzle:
@@ -45,15 +45,15 @@ def output_solved_puzzle(solved_puzzle, n_root, n):
 		counter -= 1
 		# Every 3 lines, print an intermediary line to split up the grid
 		if counter == 0:
-			print("|" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "|")
+			print("+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+")
 			counter = n_root
 
 def main():
 
 	# Verify we have a solution to print
 	if len(argv) < 2:
-		print("Usage of program: 'py miniSAT.py <puzzle>'")
-		print("<puzzle> can be an in-line puzzle from the command line, or the name of a file containing a puzzle.")
+		print("Usage of program: 'py printSolution.py [solution]'")
+		print("[solution] is the file obtained by running 'puzzle.cnf' through a SAT solver.")
 		exit()
 	try:
 		solution = open(argv[1], 'r')

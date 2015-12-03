@@ -11,7 +11,7 @@ from sys import exit, argv
 
 #####
 # Node that stores the id of a character in the puzzle. (Currently accepts everything but '0', '.', '?', and '*')
-#	Saves the character and the id associated with it. Needs to know it's own ID.
+# Saves the character and the id associated with it. Needs to know it's own ID.
 #####
 class ID_Node:
 	def __init__(self, character=None, id=None, next=None):
@@ -123,7 +123,7 @@ def print_node(head):
 def write_encoding( puzzle_head, n_value, number_of_known_values,  gsat, extended):
 	# Attempts to write the encoding to a reserved file. 
 	try:
-		sat_file = open('miniSat_readypuzzle', 'w')
+		sat_file = open('puzzle.cnf', 'w')
 		grid_size = int(math.pow( (n_value), 1.0/2))
 
 		# print to file header
@@ -289,7 +289,7 @@ def write_encoding( puzzle_head, n_value, number_of_known_values,  gsat, extende
 		exit()
 
 #####
-# Checks the validity of the puzzle, and the user's useage of the program.
+# Checks the validity of the puzzle, and the user's usage of the program.
 #	Program has a special case for the 9x9 puzzle where all characters are 1-9. This allows the solved puzzle reader to 
 #	differentiate from a standard puzzle and a special case puzzle so the markers can feed generic solved puzzles into it
 #	without a .meta file.
@@ -309,22 +309,142 @@ def main():
 	gsat = False
 	extended = False
 
-	# Verify we have a puzzle to solve
+	# Verify we have a puzzle to solve, and/or if flags are set
 	if len(argv) < 2:
-		print("Usage of program: 'py miniSAT.py <puzzle>'")
-		print("<puzzle> can be an in-line puzzle from the command line, or the name of a file containing a puzzle.")
+		print("Usage of program: 'python sudokuToSAT.py <puzzle>'")
+		print("Try 'python sudokuToSAT.py -h' or 'python sudokuToSAT.py --help' for more options.")
 		exit()
-	if len(argv) > 2 and argv[2] == '-g':
-		gsat = True
-		if len(argv) > 3 and argv[3] == '-e':
+	# Description of flags available.	
+	if argv[1] == '-h' or argv[1] == '--help':
+		print("Usage: python sudokuToSAT.py [infile] [options]\n")
+		print("Options:")
+		print("-e           | use extended encoding for puzzle")
+		print("-g           | encode puzzle in GSAT format")
+		print("-h or --help | print this summary")
+		print("--inline     | feed a 9x9 puzzle in place of file")
+		print("\nOutput is recorded in puzzle.cnf.")
+		exit()
+	# Check flags
+	inline = False
+	for arg in argv:
+		if arg == '-e':
 			extended = True
-	elif len(argv) > 2 and argv[2] == '-e':
-		extended = True
-		if len(argv) > 3 and argv[3] == '-g':
+		if arg == '-g':
 			gsat = True
+		if arg == '--inline':
+			inline = True
+
+	if inline == True:
+		i = 0
+		puzzle = argv[1]
+		while i < 81:
+			# read the next character.
+			# break if character can't be read or we're at EOF
+			c = puzzle[i]
+			i += 1
+			if not c:
+				break
+			else:
+				c
+				# Catch integer entries. (needed for the 9x9 1-9 character case.)
+				try:
+					if 1 <= int(c) <= 9:
+						# Get id
+						current_ID = get_character_ID( head, c )
+						# Catches the case that the current character is a new character.
+						if current_ID == -1:
+							# Adds new character to the known character list.
+							node = new_character_ID(tail, new_ID, c)
+							# Remembers the id of the new character so the current entry can be 
+							# added to the known puzzle entry list.
+							current_ID = new_ID
+							# Insures each character has a unique ID.
+							new_ID += 1
+							# Makes the tail of the list point to the newest character.
+							tail = node
+							# Checks if the known character list was empty.
+							if head == -1:
+								# Given there was no known character list, it makes the new character 
+								# the first character.
+								head = node
+							# Keeps track of the values between 1-9 present in the puzzle for the 
+							# 9x9 1-9 character case.
+							ints_found += 1
+						# Adds the currently found puzzle solution to the known puzzle entry list.
+						node = Entry_Node(charactersScanned, current_ID)
+						# Catches if the known puzzle entry list was empty.
+						if known_values_head == -1:
+							# Given there was no known puzzle entry list, it makes the new puzzle entry 
+							# the first puzzle entry.
+							known_values_head = node
+						else:
+							# Given there was a known puzzle entry list the new entry is added to the 
+							# end of the list
+							known_values_tail.next = node
+						# The last known puzzle entry is updated to the current one.
+						known_values_tail = node
+						# The number of unique characters in the sudoku is tracked. If it exceeds the n 
+						# (from nxn) the puzzle is invalid.
+						number_of_known_values += 1
+						# A character in the puzzle was found, thus the total number of characters found has increased
+						charactersScanned += 1
 
 
-	if os.path.exists(argv[1]):
+					else:
+						# If the character scanned is a 0, it is a unknown in the puzzle and is treated as such.
+						# Specifically the total scanned characters is increased by one.
+						charactersScanned+=1
+
+
+				except ValueError:
+					# If the current symbol is a unknown in the puzzle it is treated as a '0'
+					# Specifically the total scanned characters is increased by one.
+					if c == "." or c == "?" or c == "*":
+						charactersScanned += 1
+					# If the current character is a spacing character it is skipped without adding to the total
+					# of scanned characters.
+					elif ( c =="\n" or c =="\s" or c =="\r" or c == "\t" ):
+						pass
+					else:
+						# Get id
+						current_ID = get_character_ID( head, c )
+						# Catches the case that the current character is a new
+						# character.
+						if current_ID == -1:
+							# Adds new character to the known character list.
+							node = new_character_ID(tail, new_ID, c)
+							# Remembers the id of the new character so the current entry can be added to 
+							# the known puzzle entry list.
+							current_ID = new_ID
+							# Insures each character has a unique ID.
+							new_ID += 1
+							# Makes the tail of the list point to the newest character.
+							tail = node
+							# Checks if the known character list was empty.
+							if head == -1:
+								# Given there was no known character list, it makes the new character 
+								# the first character.
+								head = node
+						# Adds the currently found puzzle solution to the known puzzle entry list.
+						node = Entry_Node(charactersScanned, current_ID)
+						# Catches if the known puzzle entry list was empty.
+						if known_values_head == -1:
+							# Given there was no known puzzle entry list, it makes the new puzzle entry 
+							# the first puzzle entry.
+							known_values_head = node
+						else:
+							# Given there was a known puzzle entry list the new entry is added to the 
+							# end of the list
+							known_values_tail.next = node
+						# The last known puzzle entry is updated to the current one.
+						known_values_tail = node
+						# The number of unique characters in the Sudoku is tracked. If it exceeds
+						# the n (from n*n) the puzzle is invalid.
+						number_of_known_values += 1
+						# A character in the puzzle was found, thus the total number of characters found has increased
+						charactersScanned += 1
+
+	elif os.path.exists(argv[1]):
 		try:
 			puzzle = open(argv[1], 'r')
 			# Loop through all the lines of the puzzle, read each individual character
@@ -445,11 +565,11 @@ def main():
 
 		except IOError:
 			# Puzzle could not be opened, inform the user and end the program.
-			print("Error in opening " + argv[1])
+			print("IOError " + argv[1])
 			print("Verify the file exists and/or the correct permissions are set for this file.")
 			exit()
 	else:
-		# Puzzle DNE, print error.
+		# Puzzle may be inputted as single 
 		print("Error in opening " + argv[1])
 		print("Verify the file exists and/or the correct permissions are set for this file.")
 		exit()
