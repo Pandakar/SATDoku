@@ -604,12 +604,14 @@ def main():
 			# Considers that writing the meta could be skipped.
 			if skip_meta == True:
 				# Writes a value to the meta for the solution printer to know not to bother reading the file.
-				meta_file.write( 'Skip Meta')
+				meta_file.write( 'Skip\n')
 			else:
 				# Given a meta is nessary the characters in the known chracter list is saved in the file at their
 				# ID position.
 				node = head
 				while node:
+					# Writes a value to the meta for the solution printer to know not to read the metat file
+					meta_file.write( 'Read\n')
 					# saves the character value and gives it space for parsing.
 					meta_file.write( node.character )
 					meta_file.write( ' ' )
