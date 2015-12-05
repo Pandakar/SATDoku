@@ -48,15 +48,33 @@ def print_puzzle( split_puzzle, file_name ):
 def output_solved_puzzle(solved_puzzle, n_root, n):
 	# Split input string of a single line into 9 lines for easier printing
 	puzzle = [solved_puzzle[i:i+n] for i in range(0, len(solved_puzzle), n)]
-	print("+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+")
+	sys.stdout.write('+')
+	counter = n_root 
+	while (counter > 0):
+		sys.stdout.write("-"*(n_root*2+1) + "+")
+		counter -=1
+	print ""
 	counter = n_root
+	counter2 = n_root
 	# Loop over all lines in puzzle and print in a nice ASCII format
 	for line in puzzle:
-		print("| " + line[0] + " " + line[1] + " " + line[2] + " | " + line[3] + " " + line[4] + " " + line[5] + " | " + line[6] + " " + line[7] + " " + line[8] + " |")
+		print("|"),
+		for char in line:
+			print char,
+			counter2 -= 1
+			if counter2 == 0:
+				print "|",
+				counter2 = n_root
+		print ""
 		counter -= 1
 		# Every 3 lines, print an intermediary line to split up the grid
 		if counter == 0:
-			print("+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+" + "-"*(n_root*2+1) + "+")
+			sys.stdout.write('+')
+			counter = n_root
+			while (counter > 0):
+				sys.stdout.write("-"*(n_root*2+1) + "+")
+				counter -=1
+			print ""
 			counter = n_root
 
 def main():
