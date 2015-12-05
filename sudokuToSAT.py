@@ -522,7 +522,7 @@ def main():
 							charactersScanned += 1
 						# If the current character is a spaceing character it is skipped without adding to the total
 						# of scanned characters.
-						elif ( c =="\n" or c =="\s" or c =="\r" or c == "\t" ):
+						elif ( c =="\n" or c =="\s" or c == " " or c =="\r" or c == "\t" ):
 							pass
 						else:
 							# Get id
@@ -606,12 +606,12 @@ def main():
 				# Writes a value to the meta for the solution printer to know not to bother reading the file.
 				meta_file.write( 'Skip\n')
 			else:
+				# Writes a value to the meta for the solution printer to know not to read the metat file
+				meta_file.write( 'Read\n')
 				# Given a meta is nessary the characters in the known chracter list is saved in the file at their
 				# ID position.
 				node = head
 				while node:
-					# Writes a value to the meta for the solution printer to know not to read the metat file
-					meta_file.write( 'Read\n')
 					# saves the character value and gives it space for parsing.
 					meta_file.write( node.character )
 					meta_file.write( ' ' )
@@ -630,3 +630,4 @@ def main():
 	
 if __name__ == "__main__":
 	main()
+	
