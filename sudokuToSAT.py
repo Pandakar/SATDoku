@@ -140,7 +140,7 @@ def write_encoding( puzzle_head, n_value, number_of_known_values,  gsat, extende
 		while node:
 			if (gsat== True):
 				sat_file.write('( ')
-			sat_file.write(str(node.location*9 + node.id) )
+			sat_file.write(str(node.location*n_value + node.id) )
 			if (gsat== True):
 				sat_file.write(' )')
 			else:
@@ -403,7 +403,7 @@ def main():
 						charactersScanned += 1
 					# If the current character is a spacing character it is skipped without adding to the total
 					# of scanned characters.
-					elif ( c =="\n" or c =="\s" or c =="\r" or c == "\t" ):
+					elif ( c =="\n" or c =="\s" or c ==" " or c =="\r" or c == "\t" ):
 						pass
 					else:
 						# Get id
