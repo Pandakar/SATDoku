@@ -12,27 +12,38 @@ from sys import exit, argv
 def print_puzzle( split_puzzle, file_name ):
 	n_root = round(math.pow( (len(split_puzzle)-1), 1.0/6))
 	puzzle_solution = ""
+	charcter_array=[]
 	if math.pow( (n_root), 6 ) == len(split_puzzle)-1:
+		try:
+			meta_file = open('sudoku.meta', 'r')
+			char_list = meta_file.readline()
+			if char_list == "Skip\n":
+				if n_root < 4:
+					charcter_array = "1 2 3 4 5 6 7 8 9 ".split(" ")
+				else:
+					print "Error puzzle Invalid\n"
+					exit()
+			else:
+				charcter_array = meta_file.readline().split(" ")
+		except IOError:
+			if n_root < 4:
+				charcter_array = "1 2 3 4 5 6 7 8 9 ".split(" ")
+			else:
+				print "Error puzzle Invalid\n"
+				exit()
 		n_root = int(n_root)
-		n_size = n_root * n_root
 		n_size = int(round(math.pow( (len(split_puzzle)-1), 1.0/3)))
 		for i in split_puzzle:
 			if int(i) > 0:
-				puzzle_solution = puzzle_solution+str((int(i)-1)%9+1)
+				puzzle_solution = puzzle_solution+str(charcter_array[(int(i)-1)%n_size])
 		output_solved_puzzle(puzzle_solution, n_root, n_size)
 	else:
 		print(file_name + " is not a valid miniSAT solution.")
 		exit()
 
 #####
-# (3) Solved Puzzle -> Readable Format
-# NOTE ----- USED 3.3 TO PRINT SECTION
-# UPDATE TO 2.7
-# INPUT: Input string is of form (abcdefghi)*9 where [a, i] are unique integers in the set [1,9]
-# This input string is essentially the same as the input string we use to solve the puzzle.
-# Main difference is that this string (should) represent the solved version of the puzzle.
-# OUTPUT: prints a 3x3 grid representation of the solved puzzle in ASCII to the console 
-#
+# (2) Solved Puzzle -> Readable Format
+#	Modified from miniSAT.py.
 #####
 def output_solved_puzzle(solved_puzzle, n_root, n):
 	# Split input string of a single line into 9 lines for easier printing
