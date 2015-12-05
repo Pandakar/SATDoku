@@ -43,8 +43,15 @@ Output is recorded in puzzle.cnf.
 2. A single line containing a puzzle. Example: 
   `py miniSAT.py 003020600900305001001806400008102900700000008006708200002609500800203009005010300 --infile`
 
-The current form of this program only covers the minimal encoding covered during lectures. 
-Output is recorded in puzzle.cnf according to conjunctive normal form standards. 
+The current form of this program can encode a N-by-N puzzle in either minimal or exteneded encoding with DIMACS or GSAT formatting
+Output is recorded in puzzle.cnf according to the user specified format. 
+
+The N-by-N format only considers N, where N is a perfect square number. This is requried for the inner grids of the sudoku to work.
+
+Further file named sudoku.meta is generated with each puzzle. This stores the characters used in the puzzle allowing users to use
+characters such as `@` or  `b` or `K` to be fed in as characters in a puzzle.
+If a puzzle has more than N unique characters (N from N-by-N) then it is rejected as it has too many unique values. Notably
+all english letters such as `a` and `A` are consiered different chracters.
 
 For output as a grid, run:
 
@@ -68,4 +75,11 @@ This solution file is acquired by running puzzle.cnf through a SAT solver of you
 +-------+-------+-------+
 ```
 
-where the grid contains the solved version of the given Sudoku puzzle. 
+where the grid contains the solved version of the given Sudoku puzzle. This works for the NxN case*.
+
+Note: If the puzzle solution is run through this program without the presence of a sudoku.meta it will try to assign the characters 1-9 to the solution for printing. This will only work in the 2x2 and 3x3 case otherwise it prints an error.
+
+*Note: Presently the program will crash if less than N unique characters are assgined to the known values. (Where n comes from the 
+N-by-N of the puzzle.) The fix for this was left unfinished.
+
+Note: Currently the reader cannot read the output of the GSAT solver. The team was unable to get the provided solver to work for testing.
