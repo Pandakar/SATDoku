@@ -1,21 +1,21 @@
 # SATDoku
 
-This project was made for partial completion of Computer Science 320, at the University of Victoria.
-The SATDoku project takes a text version of a Sudoku puzzle and encodes it in conjunctive normal form to serve as input for a SAT solver.  
-Group members: <insert names here later>
+This project was made for partial completion of Computer Science 320 at the University of Victoria.
+The SATDoku project takes a text version of a Sudoku puzzle and encodes it in conjunctive normal form to serve as input for a SAT solver.  The SAT solver used to test this program was [minisat](http://minisat.se/).
 
-Two programs are included: `sudokuToSAT.py` and `printSolution.py`
-<soon: bash script included for automated testing, presumes `minisat` is available on machine>
+Group members: Kyle Hoffmann, Myan Panikkar
+
+Two programs are included: `sudokuToSAT.py` and `printSolution.py`. A bash script is also included in the repository for checking solutions of a given input file. 
 
 This program is compatible with Python 2.7. 
 
-Usage: `py sudokuToSAT.py [input] [options]
+Usage: `py sudokuToSAT.py [input] [options]`
 
-```python
+```
 Options:
 
 -e           | use extended encoding for puzzle
--g           |  encode puzzle in GSAT format
+-g           | encode puzzle in GSAT format
 -h or --help | print this summary
 --inline     | feed a 9x9 puzzle in place of file
 
@@ -43,15 +43,13 @@ Output is recorded in puzzle.cnf.
 2. A single line containing a puzzle. Example: 
   `py miniSAT.py 003020600900305001001806400008102900700000008006708200002609500800203009005010300 --infile`
 
-The current form of this program can encode a N-by-N puzzle in either minimal or exteneded encoding with DIMACS or GSAT formatting
+The current form of this program can encode a N-by-N puzzle in either minimal or extended encoding with DIMACS or GSAT formatting.
 Output is recorded in puzzle.cnf according to the user specified format. 
 
-The N-by-N format only considers N, where N is a perfect square number. This is requried for the inner grids of the sudoku to work.
+The N-by-N format only considers N, where N is a perfect square number. This is required for the inner grids of the sudoku to function as per puzzle rules.
 
-Further file named sudoku.meta is generated with each puzzle. This stores the characters used in the puzzle allowing users to use
-characters such as `@` or  `b` or `K` to be fed in as characters in a puzzle.
-If a puzzle has more than N unique characters (N from N-by-N) then it is rejected as it has too many unique values. Notably
-all english letters such as `a` and `A` are consiered different chracters.
+A further file named sudoku.meta is generated with each puzzle. This stores the characters used in the puzzle, allowing users to use
+characters such as `@` or  `b` or `K` to be fed in as characters in a puzzle. If a puzzle has more than N unique characters (N from N-by-N) then it is rejected as it has too many unique values. This program allows for varied capitalization to be used - for example, `a` and `A` are considered different characters.
 
 For output as a grid, run:
 
@@ -75,11 +73,9 @@ This solution file is acquired by running puzzle.cnf through a SAT solver of you
 +-------+-------+-------+
 ```
 
-where the grid contains the solved version of the given Sudoku puzzle. This works for the NxN case*.
+where the grid contains the solved version of the given Sudoku puzzle. This works for the NxN case.
 
-Note: If the puzzle solution is run through this program without the presence of a sudoku.meta it will try to assign the characters 1-9 to the solution for printing. This will only work in the 2x2 and 3x3 case otherwise it prints an error.
-
-*Note: Presently the program will crash if less than N unique characters are assgined to the known values. (Where n comes from the 
-N-by-N of the puzzle.) The fix for this was left unfinished.
-
-Note: Currently the reader cannot read the output of the GSAT solver. The team was unable to get the provided solver to work for testing.
+Known Issues:
+- If the puzzle solution is run through this program without the presence of a sudoku.meta it will try to assign the characters 1-9 to the solution for printing. This will only work in the 2x2 and 3x3 case otherwise it prints an error.
+- Presently the program will crash if less than N unique characters are assgined to the known values. (Where n comes from the N-by-N of the puzzle.) The fix for this was left unfinished.
+- Currently the reader cannot read the output of the GSAT solver. The team was unable to get the provided solver to work for testing before the project deadline.
